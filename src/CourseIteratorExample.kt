@@ -26,21 +26,42 @@ object CourseIteratorExample {
             val csvWriter = CSVWriter(outputFile);
 
             // Add header to CSV
-            val header = arrayOf("Code", "Title", "Description")
+            val header = arrayOf(
+                "Subject",
+                "Course",
+                "Title",
+                "Course Id",
+                "Terms",
+                "Description",
+                "Tags",
+                "Academic Org",
+                "Academic Group",
+                "Academic Career",
+                "Instructors"
+            )
             csvWriter.writeNext(header)
 
             val connection = ExploreCoursesConnection()
             for (s in connection.schools) {
                 for (d in s.departments) {
                     for (c in connection.getCoursesByQuery(d.code)) {
-                        val code = c.subjectCodePrefix + c.subjectCodeSuffix
-                        val title = c.title
-                        val description = c.description
+                        val courseDataArray = arrayOf(
+                            c.subjectCodePrefix,
+                            c.subjectCodeSuffix,
+                            c.title,
+                            c.courseId.toString(),
+                            c.sections.map { it.term }.toSet().joinToString(", "),
+                            c.description,
+                            c.tags.joinToString(", ") { it.organization + "::" + it.name },
+                            c.academicOrganization,
+                            c.academicGroup,
+                            c.academicCareer,
+                            "TODO"
+                        )
 
-                        val courseDataArray = arrayOf(code, title, description)
                         csvWriter.writeNext(courseDataArray)
 
-                        println("Added course: $code: $title")
+                        println(courseDataArray.joinToString(" "))
                     }
                 }
             }
