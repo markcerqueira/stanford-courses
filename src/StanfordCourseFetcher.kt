@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter
 /**
  * Prints a list of all courses offered at Stanford in the current academic year
  */
-object CourseIteratorExample {
+object StanfordCourseFetcher {
     @Throws(IOException::class, JDOMException::class)
     @JvmStatic
     fun main(args: Array<String>) {
@@ -45,6 +45,16 @@ object CourseIteratorExample {
             for (s in connection.schools) {
                 for (d in s.departments) {
                     for (c in connection.getCoursesByQuery(d.code)) {
+
+                        val instructorsSet = mutableSetOf<String>()
+                        for (section in c.sections) {
+                            for (meetingSchedule in section.meetingSchedules) {
+                                for (instructor in meetingSchedule.instructors) {
+                                    instructorsSet.add(instructor.firstName + " " + instructor.lastName)
+                                }
+                            }
+                        }
+
                         val courseDataArray = arrayOf(
                             c.subjectCodePrefix,
                             c.subjectCodeSuffix,
@@ -56,12 +66,13 @@ object CourseIteratorExample {
                             c.academicOrganization,
                             c.academicGroup,
                             c.academicCareer,
-                            "TODO"
+                            instructorsSet.joinToString(", ")
                         )
 
                         csvWriter.writeNext(courseDataArray)
 
-                        println(courseDataArray.joinToString(" "))
+                        // println(instructorsSet.joinToString(", "))
+                        // println(courseDataArray.joinToString(" "))
                     }
                 }
             }
