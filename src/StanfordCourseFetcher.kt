@@ -45,16 +45,6 @@ object StanfordCourseFetcher {
             for (s in connection.schools) {
                 for (d in s.departments) {
                     for (c in connection.getCoursesByQuery(d.code)) {
-
-                        val instructorsSet = mutableSetOf<String>()
-                        for (section in c.sections) {
-                            for (meetingSchedule in section.meetingSchedules) {
-                                for (instructor in meetingSchedule.instructors) {
-                                    instructorsSet.add(instructor.firstName + " " + instructor.lastName)
-                                }
-                            }
-                        }
-
                         val courseDataArray = arrayOf(
                             c.subjectCodePrefix,
                             c.subjectCodeSuffix,
@@ -66,12 +56,11 @@ object StanfordCourseFetcher {
                             c.academicOrganization,
                             c.academicGroup,
                             c.academicCareer,
-                            instructorsSet.joinToString(", ")
+                            c.sections.flatMap { it.meetingSchedules.flatMap { ms -> ms.instructors.map { instructor -> instructor.firstName + " " + instructor.lastName } } }.toSet().joinToString(", ")
                         )
 
                         csvWriter.writeNext(courseDataArray)
 
-                        // println(instructorsSet.joinToString(", "))
                         // println(courseDataArray.joinToString(" "))
                     }
                 }
